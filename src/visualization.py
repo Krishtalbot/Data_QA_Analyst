@@ -80,7 +80,7 @@ fig_postcode_dist = px.bar(
     postcode_counts.head(50),
     x="Post Code",
     y="Count",
-    title="Postal Code Distribution by Count",  # Updated title
+    title="Postal Code Distribution by Count",
     hover_data=["Count"],
     height=450,
 )
