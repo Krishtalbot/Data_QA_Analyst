@@ -1,8 +1,6 @@
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import datetime
-import numpy as np
 
 DATA_FILE = "dataset.csv"
 OUTPUT_HTML_FILE = "QA_visualization.html"
@@ -39,7 +37,7 @@ fig_completeness_bar = px.bar(
     title="Field Completeness: Percentage of Missing Values",
     text="Missing Percentage (%)",
     height=min(800, len(completeness_df) * 30 + 150),
-    color_discrete_sequence=["#ef553b"],
+    color_discrete_sequence=["#1a80e0"],
 )
 fig_completeness_bar.update_traces(texttemplate="%{text:.2f}%", textposition="outside")
 fig_completeness_bar.update_layout(
@@ -223,7 +221,6 @@ html_content = f"""
 
     <div class="header">
         <h1>Data QA Assessment Report</h1>
-        <p>This report visualizes key elements of the dataset to help QA analysts quickly spot anomalies and ensure data quality.</p>
     </div>
 
     <div class="summary-box">
@@ -236,8 +233,8 @@ html_content = f"""
             <h3>Percentage of Missing Values Per Field</h3>
             {plot_html_completeness}
             <div class="explanation">
-                <p><strong>Why:</strong> This visualization is crucial for QA analysts as it directly highlights the extent of missing or incomplete data in each field. Fields with a high percentage of missing values may indicate significant data collection issues or unreliable data for downstream processes.</p>
-                <p><strong>Insight:</strong> Helps spot incomplete or unreliable fields for downstream processes, guiding where to focus data cleaning or re-collection efforts.</p>
+                <p><strong>Why:</strong> This visualization is needed for QA analysts as it highlights the extent of missing or incomplete data in each field. Fields with a high percentage of missing values indicates data collection issues or unreliable data.</p>
+                <p><strong>Insight:</strong> Helps spot incomplete or unreliable fields. Shows the columns to focus on data cleaning or re-collection.</p>
             </div>
         </div>
     </div>
@@ -255,8 +252,8 @@ html_content = f"""
             </div>
         </div>
         <div class="explanation">
-            <p><strong>Why:</strong> To see how data is distributed across different insurance providers. An unusually low or high count for any particular insurer may indicate issues with data collection from specific providers, or potential data entry errors.</p>
-            <p><strong>Insight:</strong> Detect imbalance or missing entries (e.g., typos like "Sana 24" vs "Sana24" in the source data leading to multiple entries for the same provider). A heavily skewed distribution might warrant further investigation.</p>
+            <p><strong>Why:</strong> To see how data is distributed across different insurance providers.</p>
+            <p><strong>Insight:</strong> Detect imbalance or missing entries.</p>
         </div>
     </div>
 
@@ -266,8 +263,8 @@ html_content = f"""
             <h3>Postal Code Distribution by Count</h3>
             {plot_html_postcode}
             <div class="explanation">
-                <p><strong>Why:</strong> This is useful for understanding the geographic coverage of the collected data. If the data is expected to cover a wide area, seeing a concentration in only a few postcodes or a very uneven distribution could signal issues in data collection coverage.</p>
-                <p><strong>Insight:</strong> Helps spot missing coverage in certain geographical areas or potential data duplication if a single postcode has an uncharacteristically high number of records compared to others. High counts of 'MISSING' indicate uncaptured postcode information.</p>
+                <p><strong>Why:</strong> This is useful for understanding the geographic coverage of the collected data. If the data is expected to cover a wide area, seeing a concentration in only a few postcodes could signal issues in data collection coverage.</p>
+                <p><strong>Insight:</strong> Helps spot missing coverage in certain geographical areas or potential data duplication if a single postcode has an high number of records compared to others.</p>
             </div>
         </div>
     </div>
@@ -278,8 +275,8 @@ html_content = f"""
             <h3>Gender Distribution</h3>
             {plot_html_gender}
             <div class="explanation">
-                <p><strong>Why:</strong> To check for data imbalance or incorrect input within the gender field. A significantly skewed gender ratio that doesn't reflect the general population, or the presence of unexpected categories, can point to data quality issues.</p>
-                <p><strong>Insight:</strong> Reveals if all genders are adequately represented and helps identify any invalid or inconsistent entries (e.g., typos like "male" vs "Male", or unexpected categories beyond standard 'Male', 'Female', 'Other'). Also shows the proportion of missing gender data.</p>
+                <p><strong>Why:</strong> To check for data imbalance or incorrect input within the gender field.</p>
+                <p><strong>Insight:</strong> Reveals if all genders are adequately represented and helps identify any invalid or inconsistent entries (e.g., like "male" vs "Male", or unexpected categories beyond standard 'Male', 'Female').</p>
             </div>
         </div>
     </div>
@@ -290,8 +287,8 @@ html_content = f"""
             <h3>Year of Birth (Age) Distribution</h3>
             {plot_html_dob}
             <div class="explanation">
-                <p><strong>Why:</strong> Unusual ages (such as individuals born in "1900" or "3000", or a large number of blank entries) are strong indicators of bad or default data. Calculating age from the year of birth provides a more intuitive view of the demographic distribution.</p>
-                <p><strong>Insight:</strong> Helps spot unrealistic ages, potential data entry errors, or incorrect data formats. A normal distribution or expected demographic curve would be a sign of healthy data; deviations like spikes at specific unrealistic ages or extreme age ranges suggest anomalies.</p>
+                <p><strong>Why:</strong> Calculating age from the year of birth provides a more intuitive view of the demographic distribution.</p>
+                <p><strong>Insight:</strong> Helps spot unrealistic ages, potential data entry errors, or incorrect data formats.</p>
             </div>
         </div>
     </div>
@@ -302,8 +299,8 @@ html_content = f"""
             <h3>Hospital Insurance Type Coverage (Spitalzusatzversicherung)</h3>
             {plot_html_spital}
             <div class="explanation">
-                <p><strong>Why:</strong> This visualization ensures that the data has consistent and expected insurance types for 'Spitalzusatzversicherung'. It's important to verify that only valid or anticipated categories are present.</p>
-                <p><strong>Insight:</strong> Helps identify the most common values and detect unexpected categories or typos that might have entered the dataset. A high count of 'MISSING' entries indicates a significant lack of information for this field.</p>
+                <p><strong>Why:</strong> This visualization ensures that the data has consistent and expected insurance types. It's important to verify that only valid or anticipated categories are present.</p>
+                <p><strong>Insight:</strong> Helps identify the most common values and detect unexpected categories in the dataset. A high count of 'MISSING' entries indicates a lack of information for this field.</p>
             </div>
         </div>
     </div>
@@ -314,8 +311,8 @@ html_content = f"""
             <h3>Franchise (Deductible) Value Distribution</h3>
             {plot_html_franchise}
             <div class="explanation">
-                <p><strong>Why:</strong> This chart is useful for understanding the common financial responsibility trends in the dataset and for quickly spotting incorrect or missing data. Franchise values are typically within a certain numerical range.</p>
-                <p><strong>Insight:</strong> Helps identify outliers or invalid entries (e.g., string values that couldn't be converted to numbers, or values that are uncharacteristically high or low). The presence of a 'MISSING' bar highlights incomplete data for this crucial financial field.</p>
+                <p><strong>Why:</strong> This chart is useful for understanding the common financial responsibility trends in the dataset and for quickly spotting incorrect or missing data.</p>
+                <p><strong>Insight:</strong> Helps identify outliers or invalid entries. The presence of high 'MISSING' bar highlights incomplete data for this financial field.</p>
             </div>
         </div>
     </div>
@@ -324,7 +321,6 @@ html_content = f"""
 </html>
 """
 
-# Write the HTML content to a file
 with open(OUTPUT_HTML_FILE, "w", encoding="utf-8") as f:
     f.write(html_content)
 
