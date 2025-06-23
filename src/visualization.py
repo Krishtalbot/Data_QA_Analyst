@@ -166,6 +166,29 @@ fig_product_name_bar = px.bar(
 )
 fig_product_name_bar.update_layout(xaxis_title="Product Name", yaxis_title="Count")
 
+valid_age_postcode_df = df[
+    df["age"].notna() & (df["age"] > 0) & (df["age"] < 120) & df["post_code"].notna()
+].copy()
+valid_age_postcode_df["post_code_str"] = valid_age_postcode_df["post_code"].astype(str)
+
+top_postcodes_for_age_dist = (
+    valid_age_postcode_df["post_code_str"].value_counts().head(20).index.tolist()
+)
+filtered_age_postcode_df = valid_age_postcode_df[
+    valid_age_postcode_df["post_code_str"].isin(top_postcodes_for_age_dist)
+]
+
+fig_age_by_postcode_box = px.box(
+    filtered_age_postcode_df,
+    x="post_code_str",
+    y="age",
+    title="Age Distribution by Top 20 Postal Codes (Box Plot)",
+    labels={"post_code_str": "Postal Code", "age": "Age (Years)"},
+    height=600,
+)
+fig_age_by_postcode_box.update_layout(
+    xaxis_title="Postal Code", yaxis_title="Age (Years)"
+)
 
 plot_html_completeness = fig_completeness_bar.to_html(
     full_html=False, include_plotlyjs="cdn"
@@ -183,6 +206,9 @@ plot_html_spital = fig_spital_coverage.to_html(full_html=False, include_plotlyjs
 plot_html_franchise = fig_franchise_dist.to_html(
     full_html=False, include_plotlyjs="cdn"
 )
+plot_html_age_by_postcode = fig_age_by_postcode_box.to_html(
+    full_html=False, include_plotlyjs="cdn"
+)
 
 
 html_content = f"""
@@ -198,14 +224,13 @@ html_content = f"""
         .summary-box {{ background-color: #d6eaff; border: 1px solid #a6cff7; padding: 15px; border-radius: 5px; text-align: center; font-size: 1.5em; font-weight: bold; margin-bottom: 30px; color: #0a4f8f; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }}
         .section {{ margin-bottom: 50px; padding: 25px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }}
         .section h2 {{ color: #34495e; border-bottom: 2px solid #aec6cf; padding-bottom: 10px; margin-bottom: 20px; }}
-        /* IMPROVED: Stronger border and shadow for plot containers */
         .plot-container {{
             margin-bottom: 30px;
             background-color: #fdfdfd;
             padding: 15px;
             border-radius: 5px;
-            border: 2px solid #dcdcdc; /* More distinct border */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Slight shadow */
+            border: 2px solid #dcdcdc;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }}
         .plot-container h3 {{ color: #4a6c8e; margin-top: 0; }}
         .explanation {{ background-color: #eaf2f8; border-left: 5px solid #6cb2eb; padding: 15px; margin-top: 15px; border-radius: 4px; }}
@@ -291,6 +316,14 @@ html_content = f"""
                 <p><strong>Insight:</strong> Helps spot unrealistic ages, potential data entry errors, or incorrect data formats.</p>
             </div>
         </div>
+        <div class="plot-container">
+            <h3>Age Distribution by Top 20 Postal Codes (Box Plot)</h3>
+            {plot_html_age_by_postcode}
+            <div class="explanation">
+                <p><strong>Why:</strong> This box plot allows for the examination of age distribution across different geographical areas (postal codes).</p>
+                <p><strong>Insight:</strong> Reveals median age, interquartile range, and potential outliers for each postal code.</p>
+            </div>
+        </div>
     </div>
 
     <div class="section">
@@ -324,7 +357,4 @@ html_content = f"""
 with open(OUTPUT_HTML_FILE, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print(f"Data QA report generated successfully to {OUTPUT_HTML_FILE}")
-print(
-    f"Please open '{OUTPUT_HTML_FILE}' in your web browser to view the interactive report."
-)
+print(f"Visualization saved to: {OUTPUT_HTML_FILE}")
